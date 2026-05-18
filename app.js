@@ -41,6 +41,7 @@ const MONTH_NAMES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
+const MONTH_NAMES_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 const DAY_NAMES_LONG = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 // LOCAL STORAGE KEY
@@ -105,6 +106,10 @@ const DOM = {
   fortnight1Net: document.getElementById("fortnight-1-net"),
   fortnight2Hours: document.getElementById("fortnight-2-hours"),
   fortnight2Net: document.getElementById("fortnight-2-net"),
+  payrollCycleTitle: document.getElementById("payroll-cycle-title"),
+  payrollNetValue: document.getElementById("payroll-net-value"),
+  payrollHoursValue: document.getElementById("payroll-hours-value"),
+  payrollBreakdownDesc: document.getElementById("payroll-breakdown-desc"),
   projGross: document.getElementById("proj-gross"),
   projDeductionLbl: document.getElementById("proj-deduction-lbl"),
   projDeductions: document.getElementById("proj-deductions"),
@@ -443,21 +448,38 @@ function renderSummary() {
   let hoursFortnight2 = 0;
   let netFortnight2 = 0;
 
+  // Payroll cycle calculation: 2nd fortnight of previous month + 1st fortnight of current month
+  const prevMonthIndex = selectedMonth === 0 ? 11 : selectedMonth - 1;
+  const prevYear = selectedMonth === 0 ? 2025 : 2026;
+  const paddedPrevMonth = String(prevMonthIndex + 1).padStart(2, "0");
+  const paddedCurrMonth = String(selectedMonth + 1).padStart(2, "0");
+
+  let hoursPrev2 = 0;
+  let netPrev2 = 0;
+  let hoursCurr1 = 0;
+  let netCurr1 = 0;
+
   const monthlyActiveEntries = [];
 
   // Parse entries belonging to selected month
   Object.keys(state.overtimeEntries).forEach(dateStr => {
-    if (dateStr.startsWith(`2026-${paddedMonth}-`)) {
-      const entry = state.overtimeEntries[dateStr];
-      if (entry.hours > 0) {
-        const pricing = getDayTypeAndRate(dateStr);
-        const calc = calculateEarnings(entry.hours, pricing.rate, state.settings.irpf, state.settings.safety);
-        
+    const entry = state.overtimeEntries[dateStr];
+    if (entry.hours > 0) {
+      const pricing = getDayTypeAndRate(dateStr);
+      const calc = calculateEarnings(entry.hours, pricing.rate, state.settings.irpf, state.settings.safety);
+      
+      const dateParts = dateStr.split("-");
+      const year = parseInt(dateParts[0]);
+      const monthStr = dateParts[1];
+      const day = parseInt(dateParts[2]);
+
+      // Categorize log in the standard selected month variables if matching current month
+      if (year === 2026 && monthStr === paddedCurrMonth) {
         totalHours += entry.hours;
         totalGross += calc.gross;
         totalNet += calc.net;
 
-        // Categorize logs
+        // Categorize logs by workday type
         if (pricing.type === "workday") {
           hoursWorkday += entry.hours;
           grossWorkday += calc.gross;
@@ -470,8 +492,7 @@ function renderSummary() {
         }
 
         // Fortnight division (day 1-15 vs 16+)
-        const dayOfMonth = parseInt(dateStr.split("-")[2]);
-        if (dayOfMonth <= 15) {
+        if (day <= 15) {
           hoursFortnight1 += entry.hours;
           netFortnight1 += calc.net;
         } else {
@@ -487,6 +508,19 @@ function renderSummary() {
           net: calc.net,
           pricing: pricing
         });
+      }
+
+      // Cycle paycheck sum:
+      // A) 2nd fortnight of previous month (day 16+)
+      if (year === prevYear && monthStr === paddedPrevMonth && day >= 16) {
+        hoursPrev2 += entry.hours;
+        netPrev2 += calc.net;
+      }
+
+      // B) 1st fortnight of current month (day 1-15)
+      if (year === 2026 && monthStr === paddedCurrMonth && day <= 15) {
+        hoursCurr1 += entry.hours;
+        netCurr1 += calc.net;
       }
     }
   });
@@ -516,6 +550,17 @@ function renderSummary() {
 
   DOM.fortnight2Hours.textContent = `${hoursFortnight2.toFixed(1)}h`;
   DOM.fortnight2Net.textContent = `${netFortnight2.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+
+  // Render Payroll Cycle Paycheck Card
+  const payrollTotalHours = hoursPrev2 + hoursCurr1;
+  const payrollTotalNet = netPrev2 + netCurr1;
+  const prevMonthNameShort = MONTH_NAMES_SHORT[prevMonthIndex];
+  const currMonthNameShort = MONTH_NAMES_SHORT[selectedMonth];
+
+  DOM.payrollCycleTitle.textContent = `Nómina de ${MONTH_NAMES[selectedMonth]} (16 ${prevMonthNameShort} - 15 ${currMonthNameShort})`;
+  DOM.payrollNetValue.textContent = `${payrollTotalNet.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+  DOM.payrollHoursValue.textContent = `${payrollTotalHours.toFixed(1)} hrs`;
+  DOM.payrollBreakdownDesc.textContent = `Suma: 2ª Quincena de ${MONTH_NAMES[prevMonthIndex]} (${hoursPrev2.toFixed(1)}h) + 1ª Quincena de ${MONTH_NAMES[selectedMonth]} (${hoursCurr1.toFixed(1)}h)`;
 
   // Set progressive widths (cap at maximum category logged or target of 30 hours)
   const maxHoursBase = Math.max(hoursWorkday, hoursSaturday, hoursHoliday, 10);
@@ -619,6 +664,11 @@ function switchView(targetViewId) {
 function loadDemoData() {
   // Inject mock hours for May 2026 and June 2026
   const demoEntries = {
+    // ABRIL 2026 (For payroll cycle demonstration)
+    "2026-04-18": { hours: 3.0 }, // Saturday (2nd fortnight)
+    "2026-04-22": { hours: 2.0 }, // Workday (2nd fortnight)
+    "2026-04-27": { hours: 1.5 }, // Workday (2nd fortnight)
+
     // MAYO 2026 OVERTIME ENTRIES
     "2026-05-04": { hours: 2.0 },
     "2026-05-06": { hours: 1.5 },

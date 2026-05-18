@@ -1391,3 +1391,70 @@ body {
   font-weight: 750;
   color: var(--green-net);
 }
+
+/* PAYROLL CAPSULE SYSTEM */
+.payroll-capsule {
+  margin-top: 5px;
+  background: linear-gradient(135deg, rgba(16, 22, 38, 0.7) 0%, rgba(139, 92, 246, 0.08) 100%) !important;
+  border-left: 4px solid #8b5cf6 !important;
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.15);
+}
+
+.payroll-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.payroll-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.payroll-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.payroll-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payroll-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.payroll-value {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #a78bfa;
+  letter-spacing: -0.02em;
+}
+
+.payroll-hours {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-sec);
+}
+
+.payroll-desc {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: 8px;
+}
