@@ -101,7 +101,10 @@ const DOM = {
   btnHourMinus: document.getElementById("btn-hour-minus"),
   btnHourPlus: document.getElementById("btn-hour-plus"),
   btnPresetReset: document.getElementById("btn-preset-reset"),
-  loggerNote: document.getElementById("logger-note"),
+  fortnight1Hours: document.getElementById("fortnight-1-hours"),
+  fortnight1Net: document.getElementById("fortnight-1-net"),
+  fortnight2Hours: document.getElementById("fortnight-2-hours"),
+  fortnight2Net: document.getElementById("fortnight-2-net"),
   projGross: document.getElementById("proj-gross"),
   projDeductionLbl: document.getElementById("proj-deduction-lbl"),
   projDeductions: document.getElementById("proj-deductions"),
@@ -327,12 +330,11 @@ function selectAndLogDate(dateStr) {
   DOM.loggerRateBadge.className = `badge-rate ${pricing.type}-type`;
 
   // Load existing data
-  const entry = state.overtimeEntries[dateStr] || { hours: 0, note: "" };
+  const entry = state.overtimeEntries[dateStr] || { hours: 0 };
   
   // Update inputs
   DOM.loggerHoursRange.value = entry.hours;
   DOM.loggerHoursText.textContent = entry.hours.toFixed(1);
-  DOM.loggerNote.value = entry.note;
 
   // Toggle presets active states
   updatePresetButtonsState(entry.hours);
@@ -434,6 +436,13 @@ function renderSummary() {
   let hoursHoliday = 0;
   let grossHoliday = 0;
 
+  // Fortnight subdivisions
+  let hoursFortnight1 = 0;
+  let netFortnight1 = 0;
+
+  let hoursFortnight2 = 0;
+  let netFortnight2 = 0;
+
   const monthlyActiveEntries = [];
 
   // Parse entries belonging to selected month
@@ -460,11 +469,20 @@ function renderSummary() {
           grossHoliday += calc.gross;
         }
 
+        // Fortnight division (day 1-15 vs 16+)
+        const dayOfMonth = parseInt(dateStr.split("-")[2]);
+        if (dayOfMonth <= 15) {
+          hoursFortnight1 += entry.hours;
+          netFortnight1 += calc.net;
+        } else {
+          hoursFortnight2 += entry.hours;
+          netFortnight2 += calc.net;
+        }
+
         // Add to active log list
         monthlyActiveEntries.push({
           dateStr: dateStr,
           hours: entry.hours,
-          note: entry.note,
           gross: calc.gross,
           net: calc.net,
           pricing: pricing
@@ -492,13 +510,20 @@ function renderSummary() {
   DOM.bdHolidayHours.textContent = `${hoursHoliday.toFixed(1)}h`;
   DOM.bdHolidayGross.textContent = `${grossHoliday.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 
+  // Render Fortnights Summary Cards
+  DOM.fortnight1Hours.textContent = `${hoursFortnight1.toFixed(1)}h`;
+  DOM.fortnight1Net.textContent = `${netFortnight1.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+
+  DOM.fortnight2Hours.textContent = `${hoursFortnight2.toFixed(1)}h`;
+  DOM.fortnight2Net.textContent = `${netFortnight2.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+
   // Set progressive widths (cap at maximum category logged or target of 30 hours)
   const maxHoursBase = Math.max(hoursWorkday, hoursSaturday, hoursHoliday, 10);
   DOM.bdWorkdayProgress.style.width = `${(hoursWorkday / maxHoursBase) * 100}%`;
   DOM.bdSaturdayProgress.style.width = `${(hoursSaturday / maxHoursBase) * 100}%`;
   DOM.bdHolidayProgress.style.width = `${(hoursHoliday / maxHoursBase) * 100}%`;
 
-  // Sort monthly entries chronologically (oldest first or newest first? Let's do newest first!)
+  // Sort monthly entries chronologically (newest first)
   monthlyActiveEntries.sort((a, b) => b.dateStr.localeCompare(a.dateStr));
 
   // Render monthly list
@@ -537,7 +562,6 @@ function renderSummary() {
     logItem.innerHTML = `
       <div class="log-item-left">
         <span class="log-date">${formattedDate}</span>
-        <span class="log-notes">${item.note ? item.note : 'Sin notas adicionales'}</span>
       </div>
       <div class="log-item-right">
         <span class="log-rate-tag ${tagClass}">${tagLabel}</span>
@@ -596,21 +620,21 @@ function loadDemoData() {
   // Inject mock hours for May 2026 and June 2026
   const demoEntries = {
     // MAYO 2026 OVERTIME ENTRIES
-    "2026-05-04": { hours: 2.0, note: "Puesta en marcha maquinaria" },
-    "2026-05-06": { hours: 1.5, note: "Resolución avería en línea" },
-    "2026-05-09": { hours: 4.0, note: "Mantenimiento preventivo planificado" }, // Saturday
-    "2026-05-12": { hours: 2.5, note: "Soporte extraordinario" },
-    "2026-05-18": { hours: 3.0, note: "Ajuste de troqueladoras" },
-    "2026-05-23": { hours: 5.0, note: "Instalación cuadro eléctrico" }, // Saturday
-    "2026-05-25": { hours: 4.0, note: "Guardia festiva - Segunda Pascua" }, // Holiday! (Monday 25th May 2026)
-    "2026-05-28": { hours: 1.0, note: "Revisión planos de ensamble" },
+    "2026-05-04": { hours: 2.0 },
+    "2026-05-06": { hours: 1.5 },
+    "2026-05-09": { hours: 4.0 }, // Saturday
+    "2026-05-12": { hours: 2.5 },
+    "2026-05-18": { hours: 3.0 },
+    "2026-05-23": { hours: 5.0 }, // Saturday
+    "2026-05-25": { hours: 4.0 }, // Holiday! (Monday 25th May 2026)
+    "2026-05-28": { hours: 1.0 },
     
     // JUNIO 2026 OVERTIME ENTRIES
-    "2026-06-02": { hours: 2.0, note: "Montaje estructuras metálicas" },
-    "2026-06-06": { hours: 4.5, note: "Revisión técnica de puentes grúa" }, // Saturday
-    "2026-06-11": { hours: 1.5, note: "Calibración de calderas de fundición" },
-    "2026-06-19": { hours: 3.5, note: "Soporte urgente final de jornada" },
-    "2026-06-24": { hours: 8.0, note: "Retén especial San Juan" } // Holiday! (Wednesday 24th June 2026)
+    "2026-06-02": { hours: 2.0 },
+    "2026-06-06": { hours: 4.5 }, // Saturday
+    "2026-06-11": { hours: 1.5 },
+    "2026-06-19": { hours: 3.5 },
+    "2026-06-24": { hours: 8.0 } // Holiday! (Wednesday 24th June 2026)
   };
 
   state.overtimeEntries = demoEntries;
@@ -795,12 +819,10 @@ function initializeEventListeners() {
   // Save changes handler
   DOM.btnSaveEntry.addEventListener("click", () => {
     const hours = parseFloat(DOM.loggerHoursRange.value);
-    const note = DOM.loggerNote.value.trim();
 
     if (hours > 0) {
       state.overtimeEntries[state.selectedDate] = {
-        hours: hours,
-        note: note
+        hours: hours
       };
     } else {
       // If hours is 0, treat it as deleted/empty

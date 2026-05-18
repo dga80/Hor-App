@@ -187,6 +187,27 @@
           </div>
         </div>
 
+        <!-- Fortnight Breakdown Panel -->
+        <div class="fortnight-card glass-panel">
+          <h3 class="panel-title">Distribución por Quincenas</h3>
+          <div class="fortnight-grid">
+            <div class="fortnight-item glass-panel highlight-blue">
+              <span class="fortnight-lbl">1ª Quincena (Días 1-15)</span>
+              <div class="fortnight-val-row">
+                <span id="fortnight-1-hours" class="fortnight-hours">0.0h</span>
+                <span id="fortnight-1-net" class="fortnight-income">0,00 €</span>
+              </div>
+            </div>
+            <div class="fortnight-item glass-panel highlight-green">
+              <span class="fortnight-lbl">2ª Quincena (Días 16-fin)</span>
+              <div class="fortnight-val-row">
+                <span id="fortnight-2-hours" class="fortnight-hours">0.0h</span>
+                <span id="fortnight-2-net" class="fortnight-income">0,00 €</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Month Log List -->
         <div class="log-card glass-panel">
           <div class="log-card-header">
@@ -350,12 +371,6 @@
             <button class="btn-preset" data-value="4">+4h</button>
             <button class="btn-preset" data-value="8">+8h</button>
             <button id="btn-preset-reset" class="btn-preset btn-preset-danger">Borrar</button>
-          </div>
-
-          <!-- Note description log -->
-          <div class="form-group">
-            <label for="logger-note" class="form-label">Notas / Tareas realizadas:</label>
-            <textarea id="logger-note" rows="2" placeholder="Escribe aquí los detalles del trabajo (ej: Mantenimiento, Urgencias...)" class="glass-textarea"></textarea>
           </div>
 
           <!-- Live Income Projection -->

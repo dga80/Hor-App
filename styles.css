@@ -74,7 +74,7 @@ body {
 .app-frame {
   width: 100%;
   max-width: var(--app-max-width);
-  height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height to prevent browser bars overlapping */
   background-color: var(--bg-frame);
   position: relative;
   display: flex;
@@ -1337,4 +1337,57 @@ body {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* QUINCENAS BREAKDOWN SYSTEM */
+.fortnight-card {
+  margin-top: 5px;
+}
+
+.fortnight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.fortnight-item {
+  padding: 14px 12px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fortnight-item.highlight-blue {
+  border-left: 3px solid var(--blue-bright);
+}
+
+.fortnight-item.highlight-green {
+  border-left: 3px solid var(--green-net);
+}
+
+.fortnight-lbl {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.fortnight-val-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.fortnight-hours {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.fortnight-income {
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: var(--green-net);
 }
