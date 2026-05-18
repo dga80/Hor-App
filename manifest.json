@@ -1,5 +1,5 @@
 {
-  "name": "HorApp 2026 - Control de Horas Extras",
+  "name": "HorApp - Control de Horas Extras",
   "short_name": "HorApp",
   "description": "Control de horas extras basado en el Convenio del Metal de Barcelona 2026",
   "start_url": "./index.html",
