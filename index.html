@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#090d16">
+  <title>HorApp 2026 - Control de Horas Extras</title>
+  
+  <!-- Font integration -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- PWA Manifest & App Launcher Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+  <!-- App Wrapper representing a mobile screen frame on desktop, and full screen on mobile -->
+  <div class="app-frame">
+    
+    <!-- App Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
+        <div class="brand-text">
+          <h1>HorApp 2026</h1>
+          <span class="sub-brand">Metal Barcelona</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-badge" id="header-monthly-total">0h</span>
+      </div>
+    </header>
+
+    <!-- Main Content Container containing the three views -->
+    <main class="app-main">
+      
+      <!-- VIEW 1: CALENDAR VIEW -->
+      <section id="view-calendar" class="app-view active">
+        <!-- Calendar Month Control -->
+        <div class="calendar-nav">
+          <button id="prev-month" class="btn-icon" aria-label="Mes anterior">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <div class="calendar-title-container">
+            <h2 id="calendar-month-year">Enero 2026</h2>
+          </div>
+          <button id="next-month" class="btn-icon" aria-label="Siguiente mes">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+
+        <!-- Dynamic Calendar Grid -->
+        <div class="calendar-container">
+          <!-- Weekdays Row -->
+          <div class="weekdays-grid">
+            <div>Lu</div>
+            <div>Ma</div>
+            <div>Mi</div>
+            <div>Ju</div>
+            <div>Vi</div>
+            <div class="sat-header">Sá</div>
+            <div class="sun-header">Do</div>
+          </div>
+          <!-- Days Grid -->
+          <div id="calendar-days-grid" class="days-grid">
+            <!-- Programmatically filled -->
+          </div>
+        </div>
+
+        <!-- Pricing Rules Legend -->
+        <div class="legend-card glass-panel">
+          <h3 class="panel-title">Tarifas del Metal (Bruto/h)</h3>
+          <div class="legend-items">
+            <div class="legend-item workday">
+              <span class="legend-badge">L-V</span>
+              <span class="legend-label">Laborables</span>
+              <span class="legend-price">18,00 €</span>
+            </div>
+            <div class="legend-item saturday">
+              <span class="legend-badge">Sá</span>
+              <span class="legend-label">Sábados</span>
+              <span class="legend-price">19,00 €</span>
+            </div>
+            <div class="legend-item holiday">
+              <span class="legend-badge">D/F</span>
+              <span class="legend-label">Dom. y Festivos</span>
+              <span class="legend-price">23,00 €</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: RESUMEN / ANALYTICS VIEW -->
+      <section id="view-resumen" class="app-view">
+        <!-- Month Filter -->
+        <div class="resumen-selector">
+          <label for="resumen-month-select" class="sr-only">Seleccionar Mes</label>
+          <select id="resumen-month-select" class="glass-select">
+            <option value="0">Enero 2026</option>
+            <option value="1">Febrero 2026</option>
+            <option value="2">Marzo 2026</option>
+            <option value="3">Abril 2026</option>
+            <option value="4">Mayo 2026</option>
+            <option value="5">Junio 2026</option>
+            <option value="6">Julio 2026</option>
+            <option value="7">Agosto 2026</option>
+            <option value="8">Septiembre 2026</option>
+            <option value="9">Octubre 2026</option>
+            <option value="10">Noviembre 2026</option>
+            <option value="11">Diciembre 2026</option>
+          </select>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card glass-panel highlight-blue">
+            <span class="metric-label">Horas Totales</span>
+            <div class="metric-value-container">
+              <span id="metric-total-hours" class="metric-value">0.0</span>
+              <span class="metric-unit">hrs</span>
+            </div>
+            <div class="metric-footer">Acumulado en el mes</div>
+          </div>
+          
+          <div class="metric-card glass-panel">
+            <span class="metric-label">Ingreso Bruto</span>
+            <div class="metric-value-container">
+              <span id="metric-total-gross" class="metric-value">0,00</span>
+              <span class="metric-unit">€</span>
+            </div>
+            <div class="metric-footer" id="metric-gross-sub">Antes de impuestos</div>
+          </div>
+
+          <div class="metric-card glass-panel highlight-green">
+            <span class="metric-label">Beneficio Neto (Limpio)</span>
+            <div class="metric-value-container">
+              <span id="metric-total-net" class="metric-value">0,00</span>
+              <span class="metric-unit">€</span>
+            </div>
+            <div class="metric-footer" id="metric-net-retention-rate">Retención: 21,79%</div>
+          </div>
+        </div>
+
+        <!-- Hour Type Breakdown Progress bars -->
+        <div class="breakdown-card glass-panel">
+          <h3 class="panel-title">Desglose por Tipo de Hora</h3>
+          <div class="breakdown-list">
+            <!-- Workday Item -->
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-name">Laborables (Mon-Fri @ 18€/h)</span>
+                <span class="breakdown-summary"><strong id="bd-workday-hours">0h</strong> (<span id="bd-workday-gross">0,00 €</span>)</span>
+              </div>
+              <div class="progress-bar-container">
+                <div id="bd-workday-progress" class="progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <!-- Saturday Item -->
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-name">Sábados (Sat @ 19€/h)</span>
+                <span class="breakdown-summary"><strong id="bd-saturday-hours">0h</strong> (<span id="bd-saturday-gross">0,00 €</span>)</span>
+              </div>
+              <div class="progress-bar-container">
+                <div id="bd-saturday-progress" class="progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <!-- Sunday/Holiday Item -->
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-name">Festivos y Dom. (Sun/Hol @ 23€/h)</span>
+                <span class="breakdown-summary"><strong id="bd-holiday-hours">0h</strong> (<span id="bd-holiday-gross">0,00 €</span>)</span>
+              </div>
+              <div class="progress-bar-container">
+                <div id="bd-holiday-progress" class="progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Month Log List -->
+        <div class="log-card glass-panel">
+          <div class="log-card-header">
+            <h3 class="panel-title">Días Registrados</h3>
+            <span class="log-counter" id="log-list-counter">0 días</span>
+          </div>
+          <div id="monthly-log-list" class="log-list">
+            <!-- Filled dynamically -->
+            <div class="empty-state">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <p>No hay horas extras registradas en este mes.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: AJUSTES / SETTINGS VIEW -->
+      <section id="view-settings" class="app-view">
+        <!-- Tax Configuration Card -->
+        <div class="settings-card glass-panel">
+          <h3 class="panel-title flex-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><circle cx="17" cy="9" r="1"></circle><circle cx="7" cy="15" r="1"></circle></svg>
+            Calculadora de Neto
+          </h3>
+          <p class="settings-desc">Ajusta los porcentajes de retención para calcular tus ingresos netos reales.</p>
+          
+          <div class="sliders-container">
+            <!-- IRPF Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">IRPF (Retención)</span>
+                <span class="slider-value" id="irpf-value-display">15.29%</span>
+              </div>
+              <input type="range" id="settings-irpf" min="0" max="45" step="0.01" value="15.29" class="slider-input">
+            </div>
+
+            <!-- Seguridad Social Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Seguridad Social</span>
+                <span class="slider-value" id="safety-value-display">6.50%</span>
+              </div>
+              <input type="range" id="settings-safety" min="0" max="15" step="0.05" value="6.50" class="slider-input">
+            </div>
+          </div>
+
+          <div class="total-deduction-badge">
+            <span class="badge-label">Deducción Total Aplicada:</span>
+            <span class="badge-value" id="total-deduction-display">21.79%</span>
+          </div>
+        </div>
+
+        <!-- Data administration card -->
+        <div class="settings-card glass-panel">
+          <h3 class="panel-title flex-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Gestión de Datos
+          </h3>
+          <div class="buttons-grid">
+            <button id="btn-load-demo" class="btn btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              Cargar Demo 2026
+            </button>
+            <button id="btn-export" class="btn btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Exportar Copia
+            </button>
+            <button id="btn-import-trigger" class="btn btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Importar Copia
+            </button>
+            <input type="file" id="btn-import-file" style="display:none;" accept=".json">
+            <button id="btn-reset-data" class="btn btn-danger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              Borrar Todo
+            </button>
+          </div>
+        </div>
+
+        <!-- Info/Convenio card -->
+        <div class="settings-card glass-panel info-panel">
+          <div class="info-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          </div>
+          <div class="info-content">
+            <h4>Convenio Colectivo del Metal</h4>
+            <p>Tasas vigentes para la provincia de Barcelona para el ejercicio 2026. Los cálculos son brutos antes de la aplicación de las retenciones configuradas en esta pantalla.</p>
+            <span class="info-version">HorApp v1.0.0 • 2026</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Sticky Navigation Bar -->
+    <nav class="app-navbar">
+      <button class="nav-tab active" data-view="view-calendar">
+        <span class="tab-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </span>
+        <span class="tab-label">Calendario</span>
+      </button>
+      
+      <button class="nav-tab" data-view="view-resumen">
+        <span class="tab-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </span>
+        <span class="tab-label">Resumen</span>
+      </button>
+
+      <button class="nav-tab" data-view="view-settings">
+        <span class="tab-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </span>
+        <span class="tab-label">Ajustes</span>
+      </button>
+    </nav>
+
+    <!-- Overtime Logger - Bottom Sheet Modal Overlay -->
+    <div id="logger-modal" class="modal-overlay">
+      <div class="bottom-sheet glass-panel">
+        
+        <!-- Bottom Sheet Header Drag Line -->
+        <div class="sheet-drag-handle"></div>
+        
+        <!-- Sheet Top Header -->
+        <div class="sheet-header">
+          <div class="sheet-header-text">
+            <h3 id="logger-date-display">Lunes, 18 de Mayo, 2026</h3>
+            <span id="logger-rate-badge" class="badge-rate">Jornada Laboral (18,00 €/h)</span>
+          </div>
+          <button id="btn-close-logger" class="btn-close" aria-label="Cerrar panel">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Sheet Form Body -->
+        <div class="sheet-body">
+          <!-- Hours Range Selector -->
+          <div class="hours-selector-container">
+            <label for="logger-hours-range" class="form-label">Horas Extras Realizadas:</label>
+            <div class="hours-input-row">
+              <button id="btn-hour-minus" class="btn-increment-icon" aria-label="Restar media hora">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+              <div class="hours-number-wrapper">
+                <span id="logger-hours-text">0.0</span>
+                <span class="hours-text-unit">hrs</span>
+              </div>
+              <button id="btn-hour-plus" class="btn-increment-icon" aria-label="Sumar media hora">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+            <input type="range" id="logger-hours-range" min="0" max="16" step="0.5" value="0" class="slider-input slider-blue">
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="presets-row">
+            <button class="btn-preset" data-value="1">+1h</button>
+            <button class="btn-preset" data-value="2">+2h</button>
+            <button class="btn-preset" data-value="4">+4h</button>
+            <button class="btn-preset" data-value="8">+8h</button>
+            <button id="btn-preset-reset" class="btn-preset btn-preset-danger">Borrar</button>
+          </div>
+
+          <!-- Note description log -->
+          <div class="form-group">
+            <label for="logger-note" class="form-label">Notas / Tareas realizadas:</label>
+            <textarea id="logger-note" rows="2" placeholder="Escribe aquí los detalles del trabajo (ej: Mantenimiento, Urgencias...)" class="glass-textarea"></textarea>
+          </div>
+
+          <!-- Live Income Projection -->
+          <div class="live-projection-container">
+            <div class="projection-row">
+              <span class="proj-lbl">Total Bruto:</span>
+              <span id="proj-gross" class="proj-val">0,00 €</span>
+            </div>
+            <div class="projection-row secondary-proj">
+              <span class="proj-lbl" id="proj-deduction-lbl">Retención (21,79%):</span>
+              <span id="proj-deductions" class="proj-val">-0,00 €</span>
+            </div>
+            <div class="projection-row final-row">
+              <span class="proj-lbl">Beneficio Neto:</span>
+              <span id="proj-net" class="proj-val highlight-text">0,00 €</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Action Footer Buttons -->
+        <div class="sheet-footer">
+          <button id="btn-delete-entry" class="btn btn-danger flex-btn" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Eliminar
+          </button>
+          <button id="btn-save-entry" class="btn btn-primary flex-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Guardar Horas
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Alert / Toast Notification -->
+    <div id="app-toast" class="app-toast">Cambios guardados con éxito</div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
