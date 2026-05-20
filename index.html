@@ -76,26 +76,12 @@
           </div>
         </div>
 
-        <!-- Pricing Rules Legend -->
-        <div class="legend-card glass-panel">
-          <h3 class="panel-title">Tarifas del Metal (Bruto/h)</h3>
-          <div class="legend-items">
-            <div class="legend-item workday">
-              <span class="legend-badge">L-V</span>
-              <span class="legend-label">Laborables</span>
-              <span class="legend-price">18,00 €</span>
-            </div>
-            <div class="legend-item saturday">
-              <span class="legend-badge">Sá</span>
-              <span class="legend-label">Sábados</span>
-              <span class="legend-price">19,00 €</span>
-            </div>
-            <div class="legend-item holiday">
-              <span class="legend-badge">D/F</span>
-              <span class="legend-label">Dom. y Festivos</span>
-              <span class="legend-price">23,00 €</span>
-            </div>
-          </div>
+        <!-- Rates Capsule -->
+        <div class="rates-capsule-container">
+          <button id="btn-open-rates" class="rates-capsule glass-panel">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Tarifa horas</span>
+          </button>
         </div>
       </section>
 
@@ -174,7 +160,7 @@
             <!-- Workday Item -->
             <div class="breakdown-item">
               <div class="breakdown-header">
-                <span class="breakdown-name">Laborables (Mon-Fri @ 18€/h)</span>
+                <span class="breakdown-name">Laborables (<span id="bd-workday-rate-lbl">17€/h</span>)</span>
                 <span class="breakdown-summary"><strong id="bd-workday-hours">0h</strong> (<span id="bd-workday-gross">0,00 €</span>)</span>
               </div>
               <div class="progress-bar-container">
@@ -184,7 +170,7 @@
             <!-- Saturday Item -->
             <div class="breakdown-item">
               <div class="breakdown-header">
-                <span class="breakdown-name">Sábados (Sat @ 19€/h)</span>
+                <span class="breakdown-name">Sábados (<span id="bd-saturday-rate-lbl">18€/h</span>)</span>
                 <span class="breakdown-summary"><strong id="bd-saturday-hours">0h</strong> (<span id="bd-saturday-gross">0,00 €</span>)</span>
               </div>
               <div class="progress-bar-container">
@@ -194,7 +180,7 @@
             <!-- Sunday/Holiday Item -->
             <div class="breakdown-item">
               <div class="breakdown-header">
-                <span class="breakdown-name">Festivos y Dom. (Sun/Hol @ 23€/h)</span>
+                <span class="breakdown-name">Festivos y Dom. (<span id="bd-holiday-rate-lbl">21€/h</span>)</span>
                 <span class="breakdown-summary"><strong id="bd-holiday-hours">0h</strong> (<span id="bd-holiday-gross">0,00 €</span>)</span>
               </div>
               <div class="progress-bar-container">
@@ -419,6 +405,50 @@
           </button>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Rates Editor Modal -->
+    <div id="rates-modal" class="modal-overlay">
+      <div class="bottom-sheet glass-panel">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header">
+          <div class="sheet-header-text">
+            <h3>Tarifa Horas (Bruto/h)</h3>
+          </div>
+          <button id="btn-close-rates" class="btn-close" aria-label="Cerrar panel">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="sheet-body rates-editor-body">
+          <div class="rate-input-group workday">
+            <label for="rate-input-workday">Laborables (L-V)</label>
+            <div class="rate-input-wrapper">
+              <input type="number" id="rate-input-workday" step="0.5" min="0" class="glass-input">
+              <span class="rate-unit">€</span>
+            </div>
+          </div>
+          <div class="rate-input-group saturday">
+            <label for="rate-input-saturday">Sábados (Sá)</label>
+            <div class="rate-input-wrapper">
+              <input type="number" id="rate-input-saturday" step="0.5" min="0" class="glass-input">
+              <span class="rate-unit">€</span>
+            </div>
+          </div>
+          <div class="rate-input-group holiday">
+            <label for="rate-input-holiday">Dom. y Festivos (D/F)</label>
+            <div class="rate-input-wrapper">
+              <input type="number" id="rate-input-holiday" step="0.5" min="0" class="glass-input">
+              <span class="rate-unit">€</span>
+            </div>
+          </div>
+        </div>
+        <div class="sheet-footer">
+          <button id="btn-save-rates" class="btn btn-primary flex-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Guardar Tarifas
+          </button>
+        </div>
       </div>
     </div>
 

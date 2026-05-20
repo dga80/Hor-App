@@ -18,11 +18,11 @@ const BARCELONA_HOLIDAYS_2026 = {
   "2026-12-26": "San Esteban"
 };
 
-// PRICING MATRIX (BARCELONA METAL CONVENIO 2026)
-const RATES = {
-  workday: { rate: 18.00, label: "Laborable" },
-  saturday: { rate: 19.00, label: "Sábado" },
-  holiday: { rate: 23.00, label: "Festivo / Domingo" }
+// PRICING MATRIX DEFAULT LABELS
+const RATE_LABELS = {
+  workday: "Laborable",
+  saturday: "Sábado",
+  holiday: "Festivo / Domingo"
 };
 
 // INITIAL APPLICATION STATE
@@ -30,7 +30,12 @@ let state = {
   overtimeEntries: {}, // key: "YYYY-MM-DD", value: { hours: 2.5, note: "Tarea" }
   settings: {
     irpf: 15.29,
-    safety: 6.50
+    safety: 6.50,
+    rates: {
+      workday: 17.00,
+      saturday: 18.00,
+      holiday: 21.00
+    }
   },
   currentMonth: 4, // May 2026 (0-indexed, so 4 is May)
   selectedDate: null // YYYY-MM-DD
@@ -77,6 +82,9 @@ const DOM = {
   bdHolidayHours: document.getElementById("bd-holiday-hours"),
   bdHolidayGross: document.getElementById("bd-holiday-gross"),
   bdHolidayProgress: document.getElementById("bd-holiday-progress"),
+  bdWorkdayRateLbl: document.getElementById("bd-workday-rate-lbl"),
+  bdSaturdayRateLbl: document.getElementById("bd-saturday-rate-lbl"),
+  bdHolidayRateLbl: document.getElementById("bd-holiday-rate-lbl"),
   monthlyLogList: document.getElementById("monthly-log-list"),
   logListCounter: document.getElementById("log-list-counter"),
 
@@ -95,6 +103,16 @@ const DOM = {
   // Editor Modal / Sheet
   loggerModal: document.getElementById("logger-modal"),
   btnCloseLogger: document.getElementById("btn-close-logger"),
+  
+  // Rates Modal
+  ratesModal: document.getElementById("rates-modal"),
+  btnOpenRates: document.getElementById("btn-open-rates"),
+  btnCloseRates: document.getElementById("btn-close-rates"),
+  btnSaveRates: document.getElementById("btn-save-rates"),
+  rateInputWorkday: document.getElementById("rate-input-workday"),
+  rateInputSaturday: document.getElementById("rate-input-saturday"),
+  rateInputHoliday: document.getElementById("rate-input-holiday"),
+
   loggerDateDisplay: document.getElementById("logger-date-display"),
   loggerRateBadge: document.getElementById("logger-rate-badge"),
   loggerHoursText: document.getElementById("logger-hours-text"),
@@ -130,11 +148,13 @@ const DOM = {
  * @param {string} dateStr YYYY-MM-DD
  */
 function getDayTypeAndRate(dateStr) {
+  const rates = state.settings.rates || { workday: 17, saturday: 18, holiday: 21 };
+  
   // Check designated Barcelona Holidays
   if (BARCELONA_HOLIDAYS_2026[dateStr]) {
     return {
       type: "holiday",
-      rate: RATES.holiday.rate,
+      rate: rates.holiday,
       label: `Festivo: ${BARCELONA_HOLIDAYS_2026[dateStr]}`
     };
   }
@@ -145,19 +165,19 @@ function getDayTypeAndRate(dateStr) {
   if (dayOfWeek === 0) {
     return {
       type: "holiday",
-      rate: RATES.holiday.rate,
+      rate: rates.holiday,
       label: "Domingo"
     };
   } else if (dayOfWeek === 6) {
     return {
       type: "saturday",
-      rate: RATES.saturday.rate,
+      rate: rates.saturday,
       label: "Sábado"
     };
   } else {
     return {
       type: "workday",
-      rate: RATES.workday.rate,
+      rate: rates.workday,
       label: "Día Laborable"
     };
   }
@@ -209,7 +229,12 @@ function loadState() {
     try {
       const parsed = JSON.parse(raw);
       if (parsed.overtimeEntries) state.overtimeEntries = parsed.overtimeEntries;
-      if (parsed.settings) state.settings = parsed.settings;
+      if (parsed.settings) {
+        state.settings = parsed.settings;
+        if (!state.settings.rates) {
+          state.settings.rates = { workday: 17, saturday: 18, holiday: 21 };
+        }
+      }
       if (typeof parsed.currentMonth === "number") state.currentMonth = parsed.currentMonth;
     } catch (e) {
       console.error("Error loading application state from localStorage", e);
@@ -419,6 +444,38 @@ function updateTaxSettings() {
   }
 }
 
+function openRatesModal() {
+  const rates = state.settings.rates || { workday: 17, saturday: 18, holiday: 21 };
+  DOM.rateInputWorkday.value = rates.workday;
+  DOM.rateInputSaturday.value = rates.saturday;
+  DOM.rateInputHoliday.value = rates.holiday;
+  DOM.ratesModal.classList.add("open");
+}
+
+function closeRatesModal() {
+  DOM.ratesModal.classList.remove("open");
+}
+
+function saveRates() {
+  const workday = parseFloat(DOM.rateInputWorkday.value);
+  const saturday = parseFloat(DOM.rateInputSaturday.value);
+  const holiday = parseFloat(DOM.rateInputHoliday.value);
+
+  if (isNaN(workday) || isNaN(saturday) || isNaN(holiday)) {
+    alert("Por favor introduce valores numéricos válidos.");
+    return;
+  }
+
+  state.settings.rates = { workday, saturday, holiday };
+  saveState();
+  closeRatesModal();
+  showToast("Tarifas actualizadas");
+  
+  // Re-render current view to reflect changes
+  renderCalendar();
+  renderSummary();
+}
+
 /* ==========================================================================
    6. SUMMARY AND STATISTICS GENERATION ENGINE
    ========================================================================== */
@@ -533,6 +590,12 @@ function renderSummary() {
   DOM.metricTotalGross.textContent = totalGross.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   DOM.metricTotalNet.textContent = totalNet.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   DOM.metricNetRateText.textContent = `Retención combinada: ${totalDeductionPercent.toFixed(2)}%`;
+
+  // Update dynamic rate labels
+  const rates = state.settings.rates || { workday: 17, saturday: 18, holiday: 21 };
+  DOM.bdWorkdayRateLbl.textContent = `${rates.workday}€/h`;
+  DOM.bdSaturdayRateLbl.textContent = `${rates.saturday}€/h`;
+  DOM.bdHolidayRateLbl.textContent = `${rates.holiday}€/h`;
 
   // Render Hour Type Desglose Progress Bars
   DOM.bdWorkdayHours.textContent = `${hoursWorkday.toFixed(1)}h`;
@@ -739,7 +802,11 @@ function importBackup(event) {
 function resetAllData() {
   if (confirm("¿Estás seguro de que quieres restablecer todos los datos? Esta acción es irreversible.")) {
     state.overtimeEntries = {};
-    state.settings = { irpf: 15.29, safety: 6.50 };
+    state.settings = { 
+      irpf: 15.29, 
+      safety: 6.50,
+      rates: { workday: 17, saturday: 18, holiday: 21 }
+    };
     state.currentMonth = 4; // May 2026
     
     // Reset inputs
@@ -801,8 +868,13 @@ function initializeEventListeners() {
   DOM.btnImportFile.addEventListener("change", importBackup);
   DOM.btnResetData.addEventListener("click", resetAllData);
 
-  // Drawer modal controls
+  // Editor Modal Events
   DOM.btnCloseLogger.addEventListener("click", closeLogger);
+  
+  // Rates Modal Events
+  DOM.btnOpenRates.addEventListener("click", openRatesModal);
+  DOM.btnCloseRates.addEventListener("click", closeRatesModal);
+  DOM.btnSaveRates.addEventListener("click", saveRates);
   
   // Close when tapping backdrop area
   DOM.loggerModal.addEventListener("click", (e) => {
